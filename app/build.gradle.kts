@@ -1,3 +1,4 @@
+import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -20,17 +21,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        val localProperties = project.rootProject.file("local.properties")
-        val properties = Properties()
-        properties.load(localProperties.inputStream())
-
-        val apiKey = properties.getProperty("API_KEY")
-
-        buildConfigField(
-            type = "String",
-            name = "API_KEY",
-            value = apiKey
-        )
+        // Add the API key as a build config field
+        buildConfigField("String", "API_KEY", "\"${getApiKeyFromProperties()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -65,6 +57,18 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+// Function to read API key from local.properties
+fun getApiKeyFromProperties(): String {
+    val properties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        properties.load(FileInputStream(localPropertiesFile))
+        return properties.getProperty("API_KEY")
+    } else {
+        throw GradleException("API_KEY not found in local.properties")
     }
 }
 
