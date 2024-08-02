@@ -4,5 +4,5 @@ data class RecipeDto(
     val id: Int,
     val title: String,
     val image: String,
-    val sumary: String,
+    val summary: String,
 )

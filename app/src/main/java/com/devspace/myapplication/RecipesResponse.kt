@@ -1,5 +1,5 @@
 package com.devspace.myapplication
 
 data class RecipesResponse(
-    val results: List<RecipeDto>
+    val recipes: List<RecipeDto>
 )
