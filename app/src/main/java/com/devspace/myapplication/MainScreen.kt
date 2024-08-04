@@ -16,19 +16,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.devspace.myapplication.components.ERHtmlText
-import com.devspace.myapplication.ui.theme.EasyRecipesTheme
+import com.devspace.myapplication.components.ERSearchBar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,10 +38,10 @@ fun MainScreen(navController: NavHostController) {
     var recipes by rememberSaveable {
         mutableStateOf<List<RecipeDto>>(emptyList())
     }
-    val retrofit = RetrofitClient
+    val service = RetrofitClient
         .retrofitInstance.create(ApiService::class.java)
     if (recipes.isEmpty()) {
-        retrofit.getRandomRecipes().enqueue(object: Callback<RecipesResponse> {
+        service.getRandomRecipes().enqueue(object: Callback<RecipesResponse> {
             override fun onResponse(
                 call: Call<RecipesResponse>,
                 response: Response<RecipesResponse>
@@ -65,6 +65,12 @@ fun MainScreen(navController: NavHostController) {
     ) {
         MainContent(
             recipes = recipes,
+            onSearchClicked = { query ->
+                val tempCleanQuery = query.trim()
+                if (tempCleanQuery.isNotEmpty()){
+                    navController.navigate(route = "searchScreen/$tempCleanQuery")
+                }
+            },
             onClick = {
                 navController.navigate("detailScreen/${it.id}")
             }
@@ -76,17 +82,53 @@ fun MainScreen(navController: NavHostController) {
 fun MainContent(
     modifier: Modifier = Modifier,
     recipes: List<RecipeDto>,
+    onSearchClicked: (String) -> Unit,
     onClick: (RecipeDto) -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
+        var query by remember {
+            mutableStateOf("")
+        }
+        SearchSession(
+            label = "Search",
+            query = query,
+            onQueryChange = {
+                query = it
+            },
+            onSearchClicked = onSearchClicked
+        )
         RecipesSession(
             label = "Recipes",
             recipes = recipes,
-            onClick = onClick)
+            onClick = onClick
+        )
     }
+}
+
+@Composable
+fun SearchSession(
+    label: String,
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearchClicked: (String) -> Unit
+) {
+    Text(
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
+        fontSize = 18.sp,
+        fontWeight = FontWeight.SemiBold,
+        text = label
+    )
+    ERSearchBar(
+        query = query,
+        placeHolder = "Search recipes",
+        onValueChange = onQueryChange,
+        onSearchClicked = {
+            onSearchClicked.invoke(query)
+        }
+    )
 }
 
 @Composable
@@ -105,7 +147,7 @@ fun RecipesSession(
 }
 
 @Composable
-fun RecipeList(
+private fun RecipeList(
     modifier: Modifier = Modifier,
     recipes: List<RecipeDto>,
     onClick: (RecipeDto) -> Unit
