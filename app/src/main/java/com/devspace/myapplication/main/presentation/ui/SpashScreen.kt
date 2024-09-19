@@ -1,4 +1,4 @@
-package com.devspace.myapplication
+package com.devspace.myapplication.main.presentation.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.devspace.myapplication.R
 
 @Composable
 fun SplashScreen(navController: NavHostController) {

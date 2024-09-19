@@ -3,6 +3,7 @@ package com.devspace.myapplication
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,10 +39,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.devspace.myapplication.detail.presentation.RecipesDetailViewModel
+import com.devspace.myapplication.main.presentation.MainViewModel
 import com.devspace.myapplication.ui.theme.EasyRecipesTheme
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
+
+    private val mainViewModel: MainViewModel by viewModels { MainViewModel.Factory }
+    private val detailViewModel: RecipesDetailViewModel by viewModels { RecipesDetailViewModel.Factory }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -51,7 +57,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    EasyRecipesApp()
+                    EasyRecipesApp(
+                        mainViewModel = mainViewModel,
+                        detailViewModel = detailViewModel
+                    )
                 }
             }
         }

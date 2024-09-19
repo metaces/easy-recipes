@@ -1,4 +1,4 @@
-package com.devspace.myapplication
+package com.devspace.myapplication.search.presentation.ui
 
 import android.util.Log
 import androidx.compose.foundation.clickable
@@ -32,6 +32,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.devspace.myapplication.ApiService
+import com.devspace.myapplication.common.model.SearchRecipesDto
+import com.devspace.myapplication.common.model.SearchRecipesResponse
+import com.devspace.myapplication.common.data.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
