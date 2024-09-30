@@ -12,11 +12,13 @@ import com.devspace.myapplication.main.presentation.MainViewModel
 import com.devspace.myapplication.main.presentation.ui.MainScreen
 import com.devspace.myapplication.main.presentation.ui.SplashScreen
 import com.devspace.myapplication.search.presentation.ui.SearchRecipesScreen
+import com.devspace.myapplication.search.presentation.ui.SearchRecipesViewModel
 
 @Composable
 fun EasyRecipesApp(
     mainViewModel: MainViewModel,
-    detailViewModel: RecipesDetailViewModel
+    detailViewModel: RecipesDetailViewModel,
+    searchRecipesViewModel: SearchRecipesViewModel
 ) {
 
     val navController = rememberNavController()
@@ -46,7 +48,7 @@ fun EasyRecipesApp(
             })
         ) { backStackEntry ->
             val query = requireNotNull(backStackEntry.arguments?.getString("query"))
-            SearchRecipesScreen(query = query, navController)
+            SearchRecipesScreen(query = query, navController, searchRecipesViewModel)
             }
 
     }

@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,40 +33,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.devspace.myapplication.ApiService
-import com.devspace.myapplication.common.model.SearchRecipesDto
-import com.devspace.myapplication.common.model.SearchRecipesResponse
-import com.devspace.myapplication.common.data.RetrofitClient
+import com.devspace.myapplication.common.data.remote.model.SearchRecipesDto
+import com.devspace.myapplication.common.data.remote.model.SearchRecipesResponse
+import com.devspace.myapplication.common.data.remote.RetrofitClient
+import com.devspace.myapplication.main.data.remote.MainService
+import com.devspace.myapplication.search.data.SearchService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 @Composable
-fun SearchRecipesScreen(query: String, navController: NavHostController) {
+fun SearchRecipesScreen(
+    query: String,
+    navController: NavHostController,
+    viewModel: SearchRecipesViewModel
+    ) {
 
-    var searchRecipes by rememberSaveable {
-        mutableStateOf<List<SearchRecipesDto>>(emptyList())
-    }
-    val service = RetrofitClient.retrofitInstance.create(ApiService::class.java)
-
-    if(searchRecipes.isEmpty()){
-        service.searchRecipes(query).enqueue(object : Callback<SearchRecipesResponse> {
-            override fun onResponse(
-                call: Call<SearchRecipesResponse>,
-                response: Response<SearchRecipesResponse>) {
-                if (response.isSuccessful) {
-                    searchRecipes = response.body()?.results ?: emptyList()
-                } else {
-                    Log.d("RecipesDetailScreen", "Error: ${response.errorBody()}")
-                }
-            }
-
-            override fun onFailure(call: Call<SearchRecipesResponse>, t: Throwable) {
-                Log.d("RecipesDetailScreen", "Error: ${t.message}")
-            }
-
-        })
-    }
+    val searchRecipes by viewModel.recipes.collectAsState()
+    viewModel.fetchRecipesByQuery(query)
 
     Column(
         modifier = Modifier.fillMaxSize()

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.devspace.myapplication.detail.presentation.RecipesDetailViewModel
 import com.devspace.myapplication.main.presentation.MainViewModel
+import com.devspace.myapplication.search.presentation.ui.SearchRecipesViewModel
 import com.devspace.myapplication.ui.theme.EasyRecipesTheme
 import kotlinx.coroutines.delay
 
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
 
     private val mainViewModel: MainViewModel by viewModels { MainViewModel.Factory }
     private val detailViewModel: RecipesDetailViewModel by viewModels { RecipesDetailViewModel.Factory }
+    private val searchViewModel: SearchRecipesViewModel by viewModels { SearchRecipesViewModel.Factory }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -59,7 +61,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     EasyRecipesApp(
                         mainViewModel = mainViewModel,
-                        detailViewModel = detailViewModel
+                        detailViewModel = detailViewModel,
+                        searchRecipesViewModel = searchViewModel
                     )
                 }
             }

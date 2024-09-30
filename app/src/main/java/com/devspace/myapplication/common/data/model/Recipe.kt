@@ -1,6 +1,6 @@
-package com.devspace.myapplication.common.model
+package com.devspace.myapplication.common.data.model
 
-data class RecipeDto(
+data class Recipe(
     val id: Int,
     val title: String,
     val image: String,

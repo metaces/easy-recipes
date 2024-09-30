@@ -3,43 +3,48 @@ package com.devspace.myapplication.main.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.devspace.myapplication.ApiService
-import com.devspace.myapplication.common.data.RetrofitClient
-import com.devspace.myapplication.common.model.RecipeDto
-import com.devspace.myapplication.common.model.RecipesResponse
-import com.devspace.myapplication.main.data.MainService
+import com.devspace.myapplication.EasyRecipesApplication
+import com.devspace.myapplication.main.data.RecipeListRepository
+import com.devspace.myapplication.main.presentation.ui.RecipeListUiState
+import com.devspace.myapplication.main.presentation.ui.RecipeUiData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class MainViewModel(
-    private val mainService: MainService
+    private val repository: RecipeListRepository
 ): ViewModel() {
-    private val _recipes = MutableStateFlow<List<RecipeDto>>(emptyList())
-    val recipes: StateFlow<List<RecipeDto>> = _recipes
+    private val _recipes = MutableStateFlow<RecipeListUiState>(RecipeListUiState())
+    val recipes: StateFlow<RecipeListUiState> = _recipes
 
     init {
         fetchRandomRecipes()
     }
 
     private fun fetchRandomRecipes() {
+        _recipes.value = RecipeListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            if (recipes.value.isEmpty()) {
-                val response =  mainService.getRandomRecipes()
-                if (response.isSuccessful) {
-                    val recipes = response.body()?.recipes ?: emptyList()
-                    if (recipes.isNotEmpty()) {
-                        _recipes.value = recipes
+            val result =  repository.getRecipes()
+            if (result.isSuccess) {
+                val recipes = result.getOrNull()
+                if (recipes != null) {
+                    val recipeUiData = recipes.map {
+                        RecipeUiData(
+                            id = it.id,
+                            title = it.title,
+                            image = it.image,
+                            summary = it.summary
+                        )
                     }
-                } else {
-                    Log.d("MainViewModel fetchRandomRecipes", "Error: ${response.errorBody()}")
+                    _recipes.value = RecipeListUiState(list = recipeUiData)
                 }
+            } else {
+                _recipes.value = RecipeListUiState(isError = true, errorMessage = result.exceptionOrNull()?.message)
+                Log.d("MainViewModel fetchRandomRecipes", "Error: ${result.exceptionOrNull()?.message}")
             }
         }
     }
@@ -51,9 +56,9 @@ class MainViewModel(
                 modelClass: Class<T>,
                 extras: CreationExtras
             ): T {
-                val mainService = RetrofitClient.retrofitInstance.create(MainService::class.java)
+                val application = checkNotNull(extras[APPLICATION_KEY])
                 return MainViewModel(
-                    mainService
+                    repository = (application as EasyRecipesApplication).recipeListRepository
                 ) as T
             }
         }
